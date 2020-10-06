@@ -1,10 +1,14 @@
 package com.revature.eval.java.core;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class EvaluationService {
 
@@ -291,6 +295,17 @@ public class EvaluationService {
 	 * @return
 	 */
 
+//	a function to handle maps
+	public static <K> void incrementValue(Map<K, Integer> map, K key) {
+		Integer count = map.get(key);
+
+		if (count == null) {
+			count = 0;
+		}
+
+		map.put(key, count + 1);
+	}
+
 	public Map<String, Integer> wordCount(String string) {
 		Map<String, Integer> output = new LinkedHashMap<String, Integer>();
 
@@ -300,7 +315,6 @@ public class EvaluationService {
 		String[] strArr = newerStr.split(" ");
 
 		for (int i = 0; i < strArr.length; i++) {
-//			This function can be found at the bottom
 			incrementValue(output, strArr[i]);
 		}
 		return output;
@@ -726,15 +740,6 @@ public class EvaluationService {
 	 * @return
 	 */
 
-	public static void main(String[] args) {
-//		assertTrue(evaluationService.isValidIsbn("3-598-21508-8"));
-		EvaluationService evaluationService = new EvaluationService();
-//		System.out.println(evaluationService.isValidIsbn("3-598-21508-8"));
-		System.out.println(evaluationService.isValidIsbn("3-598-21507-X"));
-//		System.out.println(evaluationService.isValidIsbn("3-598-21508-9"));
-
-	}
-
 	public boolean isValidIsbn(String string) {
 		boolean output = false;
 		int backCount = 10;
@@ -773,11 +778,25 @@ public class EvaluationService {
 	 * insensitive. Input will not contain non-ASCII symbols.
 	 * 
 	 * @param string
-	 * @return
 	 */
+
 	public boolean isPangram(String string) {
-		// TODO Write an implementation for this method declaration
-		return false;
+		String alpha = "abcdefghijklmnopqrstuvwxyz";
+		Set<String> tracker = new HashSet<String>();
+
+		for (int i = 0; i < alpha.length(); i++) {
+			tracker.add(Character.toString(alpha.charAt(i)));
+		}
+
+		for (int i = 0; i < string.length(); i++) {
+			tracker.remove(Character.toString(string.charAt(i)));
+		}
+
+		if (tracker.size() == 0) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -788,9 +807,36 @@ public class EvaluationService {
 	 * @param given
 	 * @return
 	 */
+
 	public Temporal getGigasecondDate(Temporal given) {
-		// TODO Write an implementation for this method declaration
-		return null;
+		LocalDateTime givenLocalDate;
+
+		if (given instanceof LocalDate) {
+			givenLocalDate = ((LocalDate) given).atTime(0, 0, 0);
+		} else {
+			givenLocalDate = ((LocalDateTime) given);
+
+		}
+
+		LocalDateTime givenPlusGigaSecond;
+
+		long gigaSecond = (long) Math.pow(10, 9);
+
+//		86400 seconds in a day
+		long days = gigaSecond / 86400;
+		long daysRemainder = gigaSecond % 86400;
+
+//		3600 seconds in an hour
+		long hours = daysRemainder / 3600;
+		long hoursRemainder = daysRemainder % 3600;
+
+		long minutes = hoursRemainder / 60;
+		long seconds = hoursRemainder % 60;
+
+		givenPlusGigaSecond = givenLocalDate.plusDays(days).plusHours(hours).plusMinutes(minutes).plusSeconds(seconds);
+
+		return givenPlusGigaSecond;
+
 	}
 
 	/**
@@ -806,9 +852,27 @@ public class EvaluationService {
 	 * @param set
 	 * @return
 	 */
+
 	public int getSumOfMultiples(int i, int[] set) {
-		// TODO Write an implementation for this method declaration
-		return 0;
+		int outputSum = 0;
+
+		Set<Integer> numsToAdd = new HashSet<Integer>();
+
+		for (int q = 0; q < set.length; q++) {
+			int incrementor = 1;
+
+			while ((incrementor * set[q]) < i) {
+				numsToAdd.add(incrementor * set[q]);
+				incrementor++;
+			}
+
+		}
+
+		for (int p : numsToAdd) {
+			outputSum += p;
+		}
+
+		return outputSum;
 	}
 
 	/**
@@ -847,9 +911,52 @@ public class EvaluationService {
 	 * @param string
 	 * @return
 	 */
+
 	public boolean isLuhnValid(String string) {
-		// TODO Write an implementation for this method declaration
-		return false;
+		String beforeRevString = "";
+		for (int i = string.length() - 1; i >= 0; i--) {
+			if (string.charAt(i) == 'a') {
+				return false;
+			} else if (string.charAt(i) == '-') {
+				return false;
+			} else {
+				beforeRevString += string.charAt(i);
+
+			}
+		}
+
+		String beforeRevString2 = beforeRevString.replaceAll(" ", "");
+		String beforeRevString3 = beforeRevString2.replaceAll("a", "");
+		String revString = beforeRevString3.replaceAll("-", "");
+
+		ArrayList<Integer> addTheseInts = new ArrayList<Integer>(revString.length());
+
+		addTheseInts.add(Character.getNumericValue(revString.charAt(0)));
+
+		for (int q = 1; q < revString.length(); q++) {
+			int n = Character.getNumericValue(revString.charAt(q));
+			if (q % 2 != 0) {
+				if ((n * 2) > 9) {
+					addTheseInts.add((n * 2) - 9);
+				} else {
+					addTheseInts.add(n * 2);
+				}
+			} else {
+				addTheseInts.add(n);
+			}
+		}
+
+		int sumOfArray = 0;
+		for (int j = 0; j < addTheseInts.size(); j++) {
+			sumOfArray += addTheseInts.get(j);
+		}
+
+		if ((sumOfArray % 10) == 0) {
+			return true;
+		} else {
+			return false;
+		}
+
 	}
 
 	/**
@@ -879,22 +986,69 @@ public class EvaluationService {
 	 * @param string
 	 * @return
 	 */
-	public int solveWordProblem(String string) {
-		// TODO Write an implementation for this method declaration
-		return 0;
+
+	public static void main(String[] args) {
+		EvaluationService evaluationService = new EvaluationService();
+
+		System.out.println(evaluationService.solveWordProblem("What is -1 plus -10?"));
+	};
+
+	public int solveWordProblem(String string) throws NumberFormatException {
+		String stringNoPunc = string.replace("?", "");
+		String[] stringArr = stringNoPunc.split(" ");
+
+		String keyWord = "";
+
+		for (int i = 0; i < stringArr.length; i++) {
+			switch (stringArr[i]) {
+			case "plus":
+				keyWord = "plus";
+				break;
+			case "minus":
+				keyWord = "minus";
+				break;
+			case "multiplied":
+				keyWord = "multiplied";
+				break;
+			case "divided":
+				keyWord = "divided";
+				break;
+			}
+		}
+
+		int numFirst = 0;
+		int numSecond = 0;
+
+		for (int i = 0; i < stringArr.length; i++) {
+			try {
+				int n = Integer.parseInt(stringArr[i]);
+			} catch (NumberFormatException e) {
+				continue;
+			}
+
+			if (numFirst == 0) {
+				numFirst = Integer.parseInt(stringArr[i]);
+			} else {
+				numSecond = Integer.parseInt(stringArr[i]);
+			}
+		}
+
+		switch (keyWord) {
+		case "plus":
+			return numFirst + numSecond;
+		case "minus":
+			return numFirst - numSecond;
+		case "multiplied":
+			return numFirst * numSecond;
+		case "divided":
+			return numFirst / numSecond;
+		}
+
+		return -1;
+
 	}
 
 //	The following are classes I wrote 
-//	a function to handle maps
-	public static <K> void incrementValue(Map<K, Integer> map, K key) {
-		Integer count = map.get(key);
-
-		if (count == null) {
-			count = 0;
-		}
-
-		map.put(key, count + 1);
-	}
 
 	public static boolean isVowel(String str) {
 		String chLower = str.toLowerCase();
