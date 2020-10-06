@@ -267,17 +267,23 @@ public class EvaluationService {
 	 * Note: As this exercise only deals with telephone numbers used in
 	 * NANP-countries, only 1 is considered a valid country code.
 	 */
+
 	public String cleanPhoneNumber(String string) {
-		if (string.length() > 11) {
-			throw new IllegalArgumentException("No can do");
-		}
+		int digitCount = 0;
 
 		String output = "";
 		for (int i = 0; i < string.length(); i++) {
+
 			if (Character.isDigit(string.charAt(i))) {
-				output += string.charAt(i);
+				digitCount++;
+				if (digitCount > 11) {
+					throw new IllegalArgumentException("Too many digits");
+				} else {
+					output += string.charAt(i);
+
+				}
 			} else if (Character.isLetter(string.charAt(i)) || string.charAt(i) == '@') {
-				throw new IllegalArgumentException("No can do");
+				throw new IllegalArgumentException("Can't have letters, @ or other wierd stuff");
 
 			}
 		}
@@ -418,6 +424,51 @@ public class EvaluationService {
 	 * @param string
 	 * @return
 	 */
+
+//	The following are classes I wrote 
+
+	public static boolean isVowel(String str) {
+		String chLower = str.toLowerCase();
+		if (chLower.equals("a") || chLower.equals("e") || chLower.equals("i") || chLower.equals("o")
+				|| chLower.equals("u")) {
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static String makePigLatin(String str) {
+		String output = "";
+		String[] strArr = str.split("");
+
+		int lengthOfWord = strArr.length;
+
+		int index = -1;
+		for (int i = 1; i < lengthOfWord; i++) {
+
+			if (isVowel(strArr[i])) {
+
+				if (i != 0 && i != lengthOfWord - 1) {
+					if (!strArr[i - 1].equals("q")) {
+						index = i;
+						break;
+					}
+				}
+
+			}
+		}
+
+		if (index == -1) {
+			output += str;
+			output += "ay";
+		} else {
+			output += str.substring(index);
+			output += str.substring(0, index);
+			output += "ay";
+		}
+		return output;
+	}
 
 	public String toPigLatin(String string) {
 		String output = "";
@@ -987,12 +1038,6 @@ public class EvaluationService {
 	 * @return
 	 */
 
-	public static void main(String[] args) {
-		EvaluationService evaluationService = new EvaluationService();
-
-		System.out.println(evaluationService.solveWordProblem("What is -1 plus -10?"));
-	};
-
 	public int solveWordProblem(String string) throws NumberFormatException {
 		String stringNoPunc = string.replace("?", "");
 		String[] stringArr = stringNoPunc.split(" ");
@@ -1046,45 +1091,6 @@ public class EvaluationService {
 
 		return -1;
 
-	}
-
-//	The following are classes I wrote 
-
-	public static boolean isVowel(String str) {
-		String chLower = str.toLowerCase();
-		if (chLower.equals("a") || chLower.equals("e") || chLower.equals("i") || chLower.equals("o")
-				|| chLower.equals("u")) {
-
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	public static String makePigLatin(String str) {
-		String output = "";
-		String[] strArr = str.split("");
-
-		int lengthOfWord = strArr.length;
-
-		int index = -1;
-		for (int i = 0; i < lengthOfWord; i++) {
-			if (isVowel(strArr[i])) {
-				if (i != 0) {
-					if (!strArr[i - 1].equals("q")) {
-						index = i;
-						break;
-					}
-				}
-
-			}
-		}
-
-		output += str.substring(index);
-		output += str.substring(0, index);
-		output += "ay";
-
-		return output;
 	}
 
 }
